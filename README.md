@@ -43,7 +43,7 @@
 
 **Backend:**
 - [FastAPI](https://fastapi.tiangolo.com/) - High-performance web framework.
-- [SQLModel](https://sqlmodel.tiangolo.com/) / SQLAlchemy - ORM for SQLite database interaction.
+- [SQLModel](https://sqlmodel.tiangolo.com/) - ORM for SQLite database interaction.
 - [Passlib & Bcrypt](https://passlib.readthedocs.io/) - Password hashing.
 
 **Frontend:**
@@ -58,7 +58,7 @@ Make sure you have Python 3.10+ installed on your machine. You will also need a 
 
 ### 2. Clone the Repository
 ```bash
-git clone [https://github.com/YOUR_USERNAME/hellomovie.git](https://github.com/YOUR_USERNAME/hellomovie.git)
+git clone [https://github.com/YOUR_USERNAME/hellomovie.git]
 cd hellomovie
 ```
 
