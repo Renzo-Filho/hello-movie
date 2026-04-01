@@ -70,21 +70,31 @@ def buscar(request: Request, query: str = ""):
 def detalhesFilme(request: Request, filme_id: int, usuario_id: Optional[str] = Cookie(default=None)):
     usuario = None
     relacao_usuario_filme = None
+    avaliacoes = [] 
     
-    if usuario_id:
-        with Session(engine) as session:
+    with Session(engine) as session:
+        if usuario_id:
             usuario = session.get(Usuario, int(usuario_id))
 
-            if usuario:
-                filme_db = session.exec(select(Filme).where(Filme.tmdb_id == filme_id)).first()
+        filme_db = session.exec(select(Filme).where(Filme.tmdb_id == filme_id)).first()
 
-                if filme_db:
-                    relacao_usuario_filme = session.exec(select(ListaUsuario).where(
-                        ListaUsuario.usuario_id == usuario.id,
-                        ListaUsuario.filme_id == filme_db.id
-                    )).first()
+        if filme_db:
+            if usuario:
+                relacao_usuario_filme = session.exec(select(ListaUsuario).where(
+                    ListaUsuario.usuario_id == usuario.id,
+                    ListaUsuario.filme_id == filme_db.id
+                )).first()
+            
+            # query de busca por todos os comentários
+            query = select(ListaUsuario, Usuario).join(Usuario).where(
+                ListaUsuario.filme_id == filme_db.id,
+                ListaUsuario.comentario != None,
+                ListaUsuario.comentario != ""
+            )
+            avaliacoes = session.exec(query).all()
 
     filme = buscar_detalhes_filme(filme_id)
+
     if not filme:
         raise HTTPException(status_code=404, detail="Filme não encontrado")
     
@@ -92,7 +102,8 @@ def detalhesFilme(request: Request, filme_id: int, usuario_id: Optional[str] = C
         "request": request,
         "filme": filme,
         "usuario": usuario,
-        "relacao": relacao_usuario_filme
+        "relacao": relacao_usuario_filme,
+        "avaliacoes": avaliacoes
     }
 
     return templates.TemplateResponse("filmeDetalhes.html", context)
@@ -183,10 +194,17 @@ def paginaPerfil(request: Request, usuario_id: Optional[str] = Cookie(default=No
         
         if not usuario:
             return RedirectResponse(url="/login", status_code=303)
+    
+        minha_lista = session.exec(select(ListaUsuario).where(ListaUsuario.usuario_id == usuario.id)).all()
+
+        total_filmes = len(minha_lista)
+        total_avaliacoes = sum(1 for item in minha_lista if item.nota is not None)
             
     context = {
         "request": request,
-        "usuario": usuario
+        "usuario": usuario,
+        "total_filmes": total_filmes,        
+        "total_avaliacoes": total_avaliacoes
     }
     
     return templates.TemplateResponse("perfil.html", context)
@@ -280,7 +298,8 @@ def adicionarLista(request: Request, tmdb_id: int, status: str = Form(...), nota
                
         return HTMLResponse("""
             <div id="modal-content" class="bg-surface border border-gray-800 rounded-xl p-8 shadow-2xl w-full max-w-lg relative text-center">
-                <button onclick="document.getElementById('modal-registro').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                
+                <button onclick="window.location.reload()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
                 
@@ -288,7 +307,7 @@ def adicionarLista(request: Request, tmdb_id: int, status: str = Form(...), nota
                 <h4 class="text-2xl text-white font-bold mb-2">Registro Salvo!</h4>
                 <p class="text-gray-400 mb-6">O filme foi adicionado à sua lista com sucesso.</p>
                 
-                <button onclick="document.getElementById('modal-registro').classList.add('hidden')" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors border border-gray-700">
+                <button onclick="window.location.reload()" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors border border-gray-700">
                     Fechar Janela
                 </button>
             </div>
