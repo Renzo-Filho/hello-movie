@@ -51,6 +51,16 @@
 - [HTMX](https://htmx.org/) - AJAX interactions directly in HTML (hx-get, hx-post, hx-put, hx-delete).
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first styling.
 
+## 🤖 AI Usage Disclosure
+
+In compliance with academic transparency guidelines, it is declared that Artificial Intelligence tools (such as Gemini) were utilized as learning assistants during the development of this project. Their usage was strictly limited to:
+
+* **Implementation Guidance:** General consultations to clarify software architecture doubts and structural logic.
+* **Backend Tooling:** Assistance in understanding and correctly applying the `passlib.context` library for secure password hashing.
+* **Frontend Styling:** Quick reference queries to locate specific **Tailwind CSS** utility classes to achieve the desired interface design.
+
+All AI-generated suggestions and code snippets were thoroughly reviewed, tested, and manually adapted to ensure complete comprehension and proper integration into the codebase.
+
 ## 🚀 How to Run the Project Locally
 
 ### 1. Prerequisites
